@@ -1,3 +1,191 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nero Azzurro · Circuito Rankeado</title><style>:root{font-family:Arial,Helvetica,sans-serif;color:#f4f7ff;background:#080b12}*{box-sizing:border-box}body{margin:0}header{background:#111827;text-align:center;padding:30px 12px;border-bottom:2px solid #198cff}header h1{margin:0;letter-spacing:2px;font-size:30px}header h1 span{color:#238fff}header small{letter-spacing:3px;color:#b3c1d5}main{max-width:1120px;margin:28px auto;padding:0 16px}.muted{color:#aebbd0}.pill{display:inline-block;border:1px solid #247bd1;color:#8ac0ff;border-radius:30px;padding:7px 12px;font-size:12px}.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}input,select{width:100%;background:#151f30;color:white;border:1px solid #34465f;border-radius:8px;padding:13px;font-size:15px}input::placeholder{color:#aab7c9}.card{background:#151e2e;border:1px solid #2a3e5a;border-radius:12px;padding:16px;margin:10px 0}.meta{font-size:12px;color:#78b8ff;font-weight:700;letter-spacing:.4px}.teams{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;margin-top:12px}.vs{color:#94a6bf;font-size:12px}.empty{padding:28px;text-align:center;color:#b3c1d5}.section{margin-top:30px}.section h2{font-size:21px}#status{margin:16px 0}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}button{background:#207de3;color:white;border:0;border-radius:8px;padding:10px 14px;cursor:pointer}@media(max-width:680px){.filters{grid-template-columns:1fr}.teams{gap:7px;font-size:14px}header h1{font-size:25px}}</style></head><body><header><h1>NERO <span>AZZURRO</span></h1><small>PÁDEL INDOOR · TORNEOS</small></header><main><span class="pill">18.ª FECHA · CIRCUITO RANKEADO 2026</span><h1>Partidos del torneo</h1><p class="muted">Todos los partidos en el orden de la planilla. Filtrá por día, categoría o jugador.</p><div class="filters"><select id="day"><option value="">Todos los días</option><option>Viernes</option><option>Sábado</option><option>Domingo</option></select><select id="category"><option value="">Todas las categorías</option><option value="7MA DAMAS">7ma Damas</option><option value="5TA CABALLEROS">5ta Caballeros</option></select><input id="player" type="search" placeholder="Buscar jugador o jugadora" aria-label="Buscar jugador"></div><div class="top"><span id="count" class="muted"></span><button id="refresh">Actualizar partidos</button></div><div id="status" role="status" class="muted">Cargando partidos…</div><div id="matches"></div><p class="muted" style="margin:40px 0;text-align:center;font-size:12px">NERO AZZURRO PÁDEL INDOOR · CIRCUITO RANKEADO 2026</p></main><script>
-const API='https://script.google.com/macros/s/AKfycbx9tLj1eKnwfla7QAdGyygC8Bf7DLZuS-3y08EsYdOtLEvw8hG1rjuUrGPvEV071aXL/exec';let all=[];const el=id=>document.getElementById(id);const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}function render(){const day=el('day').value,cat=el('category').value,q=norm(el('player').value.trim());const filtered=all.filter(p=>(!day||p.dia===day)&&(!cat||norm(p.categoria)===norm(cat))&&(!q||norm((p.pareja1||'')+' '+(p.pareja2||'')).includes(q)));el('count').textContent=`${filtered.length} de ${all.length} partidos`;const root=el('matches');root.replaceChildren();if(!filtered.length){root.append(node('div','empty','No hay partidos para esos filtros.'));return}let current='';for(const p of filtered){if(p.dia!==current){current=p.dia;const section=node('div','section');section.append(node('h2','',current));root.append(section)}const card=node('article','card');card.append(node('div','meta',`${p.hora||'Horario a confirmar'} · ${p.categoria||''} · ${p.instancia||''} · Zona ${p.zona||'-'} · ${p.partido||''}`));const teams=node('div','teams');teams.append(node('div','',p.pareja1||'Por definir'));teams.append(node('span','vs','VS'));teams.append(node('div','',p.pareja2||'Por definir'));card.append(teams);root.append(card)}}async function load(){el('status').textContent='Actualizando partidos…';try{const response=await fetch(API+'?t='+Date.now(),{redirect:'follow',cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(!Array.isArray(data.partidos))throw Error('Formato inesperado');all=data.partidos;el('status').textContent='';render()}catch(e){el('status').textContent='No se pudieron cargar los partidos. Verificá la conexión y volvé a intentar.';console.error(e)}}['day','category','player'].forEach(id=>el(id).addEventListener(id==='player'?'input':'change',render));el('refresh').addEventListener('click',load);load();
-</script></body></html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nero Azzurro | Circuito Rankeado</title>
+<style>
+:root{--bg:#080b12;--panel:#151f30;--line:#2c405e;--blue:#379bff;--text:#f4f7ff;--muted:#afbed3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+header{background:#111827;border-bottom:2px solid var(--blue);padding:30px 16px;text-align:center}
+.logo{font-size:32px;font-weight:800;letter-spacing:2px}
+.logo span{color:var(--blue)}
+.sub{color:var(--muted);font-size:13px;letter-spacing:3px;margin-top:6px}
+main{max-width:1200px;margin:auto;padding:30px 18px}
+.tag{display:inline-block;border:1px solid var(--blue);border-radius:24px;color:#83beff;padding:8px 13px;font-size:12px}
+h1{font-size:30px;margin:28px 0 12px}
+h2{font-size:22px;margin:26px 0 16px}
+p,.muted{color:var(--muted)}
+nav{display:flex;flex-wrap:wrap;gap:10px;margin:25px 0}
+nav button,.refresh{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;padding:14px 18px;cursor:pointer;font-size:14px}
+nav button.active,.refresh{background:#187ee7;border-color:#187ee7;color:white}
+.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:22px 0}
+select,input{width:100%;padding:15px;background:var(--panel);color:white;border:1px solid var(--line);border-radius:9px;font-size:15px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:18px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px;margin:10px 0}
+.meta{font-size:13px;color:#78baff;font-weight:bold;margin-bottom:12px}
+.versus{display:grid;grid-template-columns:1fr auto 1fr;gap:15px;align-items:center}
+.vs{color:var(--muted);font-size:13px}
+.zone{margin:22px 0 30px}
+.pair{padding:11px 0;border-bottom:1px solid var(--line)}
+.pair:last-child{border-bottom:0}
+.pair strong{color:var(--blue);margin-right:12px}
+.match{padding:10px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:14px}
+.match:last-child{border:0}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+footer{text-align:center;color:#8092aa;font-size:12px;padding:45px 15px}
+@media(max-width:650px){
+.logo{font-size:26px}
+h1{font-size:25px}
+.filters{grid-template-columns:1fr}
+.versus{grid-template-columns:1fr;gap:8px}
+.vs{text-align:center}
+.toolbar{align-items:flex-start;flex-direction:column}
+nav button{flex:1}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">NERO <span>AZZURRO</span></div>
+<div class="sub">PÁDEL INDOOR · TORNEOS</div>
+</header>
+<main>
+<div class="tag">18.ª FECHA · CIRCUITO RANKEADO 2026</div>
+<h1 id="titulo">Partidos del torneo</h1>
+<p id="descripcion">Consultá los partidos, horarios y jugadores.</p>
+<nav>
+<button class="active" onclick="cambiar('partidos',this)">Partidos</button>
+<button onclick="cambiar('damas',this)">Zonas 7ma Damas</button>
+<button onclick="cambiar('caballeros',this)">Zonas 5ta Caballeros</button>
+</nav>
+<div id="filtros" class="filters">
+<select id="dia" onchange="mostrar()"><option value="">Todos los días</option></select>
+<select id="categoria" onchange="mostrar()"><option value="">Todas las categorías</option></select>
+<input id="buscar" placeholder="Buscar jugador o jugadora" oninput="mostrar()">
+</div>
+<div class="toolbar">
+<span class="muted" id="contador">Cargando información...</span>
+<button class="refresh" onclick="cargar()">Actualizar información</button>
+</div>
+<div id="contenido"></div>
+</main>
+<footer>NERO AZZURRO PÁDEL INDOOR · CIRCUITO RANKEADO 2026</footer>
+<script>
+const API='https://script.google.com/macros/s/AKfycbx9tLj1eKnwfla7QAdGyygC8Bf7DLZuS-3y08EsYdOtLEvw8hG1rjuUrGPvEV071aXL/exec';
+let datos={partidos:[],zonasDamas:[],zonasCaballeros:[]};
+let vista='partidos';
+
+function limpio(valor){
+return String(valor??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function cargar(){
+document.getElementById('contador').textContent='Actualizando información...';
+try{
+const respuesta=await fetch(API,{cache:'no-store'});
+if(!respuesta.ok)throw Error('No se pudo conectar');
+const nuevos=await respuesta.json();
+if(nuevos.error)throw Error(nuevos.error);
+datos={
+partidos:nuevos.partidos||[],
+zonasDamas:nuevos.zonasDamas||[],
+zonasCaballeros:nuevos.zonasCaballeros||[]
+};
+actualizarFiltros();
+mostrar();
+}catch(error){
+document.getElementById('contador').textContent='Error de conexión';
+document.getElementById('contenido').innerHTML='<div class="empty">No se pudo cargar la información. Probá actualizar nuevamente.</div>';
+console.error(error);
+}
+}
+
+function actualizarFiltros(){
+const dias=[...new Set(datos.partidos.map(p=>p.dia).filter(Boolean))];
+const categorias=[...new Set(datos.partidos.map(p=>p.categoria).filter(Boolean))];
+document.getElementById('dia').innerHTML='<option value="">Todos los días</option>'+dias.map(d=>`<option>${limpio(d)}</option>`).join('');
+document.getElementById('categoria').innerHTML='<option value="">Todas las categorías</option>'+categorias.map(c=>`<option>${limpio(c)}</option>`).join('');
+}
+
+function cambiar(nueva,boton){
+vista=nueva;
+document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+boton.classList.add('active');
+document.getElementById('filtros').style.display=vista==='partidos'?'grid':'none';
+const titulos={
+partidos:'Partidos del torneo',
+damas:'Zonas 7ma Damas',
+caballeros:'Zonas 5ta Caballeros'
+};
+document.getElementById('titulo').textContent=titulos[vista];
+document.getElementById('descripcion').textContent=vista==='partidos'
+?'Todos los partidos en el orden de la planilla. Filtrá por día, categoría o jugador.'
+:'Consultá las parejas de cada zona y sus cruces de clasificación.';
+mostrar();
+}
+
+function mostrar(){
+if(vista==='partidos')mostrarPartidos();
+else mostrarZonas(vista==='damas'?datos.zonasDamas:datos.zonasCaballeros);
+}
+
+function mostrarPartidos(){
+const dia=document.getElementById('dia').value;
+const categoria=document.getElementById('categoria').value;
+const busqueda=document.getElementById('buscar').value.toLocaleLowerCase();
+const lista=datos.partidos.filter(p=>
+(!dia||p.dia===dia)&&
+(!categoria||p.categoria===categoria)&&
+(!busqueda||[p.pareja1,p.pareja2].join(' ').toLocaleLowerCase().includes(busqueda))
+);
+document.getElementById('contador').textContent=`${lista.length} de ${datos.partidos.length} partidos`;
+if(!lista.length){
+document.getElementById('contenido').innerHTML='<div class="empty">No hay partidos para mostrar.</div>';
+return;
+}
+let html='';
+let ultimoDia='';
+lista.forEach(p=>{
+if(p.dia!==ultimoDia){
+ultimoDia=p.dia;
+html+=`<h2>${limpio(p.dia)}</h2>`;
+}
+html+=`<article class="card">
+<div class="meta">${limpio(p.hora)} · ${limpio(p.categoria)} · ${limpio(p.instancia)} · Zona ${limpio(p.zona)} · ${limpio(p.partido)}</div>
+<div class="versus"><div>${limpio(p.pareja1)}</div><div class="vs">VS</div><div>${limpio(p.pareja2)}</div></div>
+</article>`;
+});
+document.getElementById('contenido').innerHTML=html;
+}
+
+function mostrarZonas(zonas){
+document.getElementById('contador').textContent=`${zonas.length} zonas`;
+if(!zonas.length){
+document.getElementById('contenido').innerHTML='<div class="empty">Todavía no hay zonas disponibles.</div>';
+return;
+}
+let html='';
+zonas.forEach(z=>{
+html+=`<section class="zone"><h2>Zona ${limpio(z.zona)}</h2><div class="card">`;
+(z.parejas||[]).forEach(p=>{
+html+=`<div class="pair"><strong>${limpio(p.numero)}</strong>${limpio(p.pareja)}</div>`;
+});
+html+='</div>';
+if(z.cruces&&z.cruces.length){
+html+='<div class="card"><div class="meta">PARTIDOS DE LA ZONA</div>';
+z.cruces.forEach(c=>{
+html+=`<div class="match"><strong>${limpio(c.cruce)}</strong> · ${limpio(c.dia)} ${limpio(c.hora)} · Partido ${limpio(c.numeroPartido)}${c.resultado?' · Resultado: '+limpio(c.resultado):''}</div>`;
+});
+html+='</div>';
+}
+html+='</section>';
+});
+document.getElementById('contenido').innerHTML=html;
+}
+cargar();
+</script>
+</body>
+</html>
