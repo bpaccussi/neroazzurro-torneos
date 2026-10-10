@@ -179,12 +179,15 @@ function datosDeMuestra(){
  ];
 }
 let cargaEnCurso=false;
+let ultimoInicioCarga=0;
 async function cargar(){
  if(cargaEnCurso)return;
  cargaEnCurso=true;
+ ultimoInicioCarga=Date.now();
  document.getElementById('contador').textContent='Actualizando información...';
  try{
-  const respuesta=await fetch(API,{cache:'no-store'});
+  const url=API+(API.includes('?')?'&':'?')+'_t='+Date.now();
+  const respuesta=await fetch(url,{cache:'no-store',redirect:'follow'});
   if(!respuesta.ok)throw Error('No se pudo conectar');
   const nuevos=await respuesta.json();
   if(nuevos.error)throw Error(nuevos.error);
@@ -358,7 +361,17 @@ function mostrarLlave(){
  document.getElementById('contenido').innerHTML=html;
 }
 
+// Consultas automáticas mientras la página permanece abierta.
+// El parámetro _t evita reutilizar una respuesta anterior de la API.
 cargar();
-// Actualiza los resultados de Google Sheets cada 30 segundos sin intervención del visitante.
-setInterval(cargar,30000);
+setInterval(()=>{
+  if(!document.hidden && !cargaEnCurso) cargar();
+},30000);
+// Al volver a la pestaña, consulta de nuevo si han pasado al menos 15 segundos.
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden && Date.now()-ultimoInicioCarga>=15000) cargar();
+});
+window.addEventListener('focus',()=>{
+  if(Date.now()-ultimoInicioCarga>=15000) cargar();
+});
 </script></body></html>
