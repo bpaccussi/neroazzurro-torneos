@@ -178,7 +178,10 @@ function datosDeMuestra(){
  r('Final','C-F1','Ganador C-S1','Ganador C-S2','18:30')
  ];
 }
+let cargaEnCurso=false;
 async function cargar(){
+ if(cargaEnCurso)return;
+ cargaEnCurso=true;
  document.getElementById('contador').textContent='Actualizando información...';
  try{
   const respuesta=await fetch(API,{cache:'no-store'});
@@ -199,9 +202,11 @@ async function cargar(){
    document.getElementById('contenido').innerHTML='<div class="empty">No se pudo cargar la información real de Sheets. Probá actualizar nuevamente.</div>';
   }
   console.error(error);
+ }finally{
+  cargaEnCurso=false;
  }
 }
-function actualizarFiltros(){const dias=[...new Set(datos.partidos.map(p=>p.dia).filter(Boolean))];const categorias=[...new Set(datos.partidos.map(p=>p.categoria).filter(Boolean))];document.getElementById('dia').innerHTML='<option value="">Todos los días</option>'+dias.map(d=>`<option>${limpio(d)}</option>`).join('');document.getElementById('categoria').innerHTML='<option value="">Todas las categorías</option>'+categorias.map(c=>`<option value="${limpio(c)}">${limpio(categoriaVisible(c))}</option>`).join('')}
+function actualizarFiltros(){const diaAnterior=document.getElementById('dia').value,categoriaAnterior=document.getElementById('categoria').value;const dias=[...new Set(datos.partidos.map(p=>p.dia).filter(Boolean))];const categorias=[...new Set(datos.partidos.map(p=>p.categoria).filter(Boolean))];document.getElementById('dia').innerHTML='<option value="">Todos los días</option>'+dias.map(d=>`<option>${limpio(d)}</option>`).join('');document.getElementById('categoria').innerHTML='<option value="">Todas las categorías</option>'+categorias.map(c=>`<option value="${limpio(c)}">${limpio(categoriaVisible(c))}</option>`).join('');document.getElementById('dia').value=diaAnterior;document.getElementById('categoria').value=categoriaAnterior}
 function mostrar(){if(vista==='partidos')mostrarPartidos();else if(vista==='llaveDamas'||vista==='llaveCaballeros')mostrarLlave();else mostrarZonas(vista==='damas'?datos.zonasDamas:datos.zonasCaballeros)}
 function estadoEtiqueta(valor){const estado=String(valor||'En Espera').trim();return `<span class="status" data-status="${limpio(estado.toLowerCase())}">${limpio(estado)}</span>`}
 function resultadosEnCasillas(texto){const sets=String(texto||'').trim().match(/\d+\s*[-–]\s*\d+/g)||[];return sets.length?`<div class="sets">${sets.map((set,i)=>`<span class="set-box"><span class="set-label">${i===2?'STB':'SET '+(i+1)}</span>${limpio(set.replace(/\s/g,''))}</span>`).join('')}</div>`:'<div class="sets" aria-label="Resultado pendiente"><span class="set-box empty-set"></span><span class="set-box empty-set"></span></div>'}
@@ -354,4 +359,6 @@ function mostrarLlave(){
 }
 
 cargar();
+// Actualiza los resultados de Google Sheets cada 30 segundos sin intervención del visitante.
+setInterval(cargar,30000);
 </script></body></html>
