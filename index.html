@@ -505,6 +505,8 @@ function mostrarLlave(){
   return nombre(n);
  }
  function estadoPartido(r){
+  const estadoLlave=String(r.estado||'').trim();
+  if(estadoLlave)return estadoLlave;
   const norm=v=>sinTildes(String(v||'')).toUpperCase().replace(/\s+/g,' ').trim();
   const a=parejaVisible(r.pareja1),b=parejaVisible(r.pareja2);
   if(!a||!b)return 'En espera';
