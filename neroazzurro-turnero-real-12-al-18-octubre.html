@@ -39,13 +39,13 @@ function build(v){
    for(let r=0;r<8;r++){
       const yy=y+105+r*rowH;
       if(v===0 && r%2===1)s+=rect(52,yy,976,rowH,'#F5F8FC');
-      if(v===2 && r%2===1)s+=rect(52,yy,976,rowH,'#0B213B');
+      // En opción 3 todas las filas mantienen el mismo fondo, sin bandas alternadas.
       s+=rect(52,yy+rowH-1,976,1,v===0?'#D8E2EB':'#29435D');
       s+=text(xs[0],yy+39,times[r],29,muted,700);
       for(let c=0;c<3;c++){
         let val=sample[d][r][c],free=val==='L',cl=val==='Clases';
         let col=free?green:cl?accent:ink;
-        if(v===2&&!free&&!cl){s+=rect([245,505,765][c],yy+7,244,46,'#183D69',6);col='#FFFFFF'}
+        if(v===2&&!free&&!cl){s+=rect([245,505,765][c],yy+7,244,46,'#0B213B',6);col='#FFFFFF'}
         s+=text(xs[c+1],yy+39,free?'LIBRE':cl?'CLASES':val.toLocaleUpperCase('es-AR'),26,col,400);
       }
    }
