@@ -46,7 +46,7 @@ function build(v){
         let val=sample[d][r][c],free=val==='L',cl=val==='Clases';
         let col=free?green:cl?accent:ink;
         if(v===2&&!free&&!cl){s+=rect([245,505,765][c],yy+7,244,46,'#183D69',6);col='#FFFFFF'}
-        s+=text(xs[c+1],yy+39,free?'LIBRE':cl?'CLASES':val.toLocaleUpperCase('es-AR'),free?26:cl?29:31,col,free?400:cl?700:800);
+        s+=text(xs[c+1],yy+39,free?'LIBRE':cl?'CLASES':val.toLocaleUpperCase('es-AR'),26,col,400);
       }
    }
  }
