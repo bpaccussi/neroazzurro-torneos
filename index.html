@@ -719,7 +719,7 @@ function mostrarLlave19(){
  const totalAlto=Math.max(260,...posiciones.values())+alto+65;
  const totalAncho=rondas.length*(ancho+separacion)+25;
  let svg=`<svg class="llave-lineas" width="${totalAncho}" height="${totalAlto}" viewBox="0 0 ${totalAncho} ${totalAlto}" aria-hidden="true">`;
- rondas.forEach((r,i)=>{if(i===0)return;r.partidos.forEach(p=>{const destino=Number(p.numeroCruce),y2=posiciones.get(destino)+alto/2,x2=i*(ancho+separacion)+10,mid=x2-separacion/2;hijos(p).forEach(h=>{if(!posiciones.has(h)||indice.get(h)!==i-1)return;const x1=(i-1)*(ancho+separacion)+10+ancho,y1=posiciones.get(h)+alto/2;svg+=`<path d="M ${x1} ${y1} H ${mid} V ${y2} H ${x2}"/>`;});});});svg+='</svg>';
+ rondas.forEach((r,i)=>{if(i===0)return;r.partidos.forEach(p=>{const destino=Number(p.numeroCruce),x2=i*(ancho+separacion)+10,mid=x2-separacion/2;const lados=String(p.enfrentamiento||'').split(/\s+vs\.?\s+/i);lados.forEach((lado,slot)=>{const m=lado.match(/Ganador\s+(\d+)/i);if(!m)return;const h=Number(m[1]);if(!posiciones.has(h)||indice.get(h)!==i-1)return;const y2=posiciones.get(destino)+(slot===0?alto/4:3*alto/4);const x1=(i-1)*(ancho+separacion)+10+ancho,y1=posiciones.get(h)+alto/2;svg+=`<path d="M ${x1} ${y1} H ${mid} V ${y2} H ${x2}"/>`;});});});svg+='</svg>';
   const ocultar=v=>{const t=String(v||'').trim();return /^(GANADOR|GANADORA|PENDIENTE|POR DEFINIR|NN\b)/i.test(t)?'':t;};
   const referencia=(p,lado)=>{
    const nombres=String(p.enfrentamiento||'').split(/\s+vs\.?\s+/i);
