@@ -716,6 +716,23 @@ function mostrarLlave19(){
  posiciones.set(id,y);return y;}
  rondas[rondas.length-1].partidos.forEach(p=>ubicar(Number(p.numeroCruce)));
  rondas.forEach(r=>r.partidos.forEach(p=>ubicar(Number(p.numeroCruce))));
+ // Alinear físicamente los partidos de acceso con el casillero LIBRE
+ // de la siguiente ronda. Solo mover los cruces con un único ganador
+ // entrante (el otro casillero ya está ocupado por un clasificado).
+ // No comprimir las parejas de cruces donde entran dos ganadores:
+ // allí los cuadros necesitan mantener su separación vertical.
+ rondas.forEach((r,i)=>{
+  if(i===0)return;
+  r.partidos.forEach(p=>{
+   const lados=String(p.enfrentamiento||'').split(/\s+vs\.?\s+/i);
+   const entradas=lados.map((lado,slot)=>({slot,match:lado.match(/Ganador\s+(\d+)/i)}))
+     .filter(z=>z.match && indice.get(Number(z.match[1]))===i-1);
+   if(entradas.length!==1)return;
+   const z=entradas[0],h=Number(z.match[1]),padre=posiciones.get(Number(p.numeroCruce));
+   if(padre===undefined||!posiciones.has(h))return;
+   posiciones.set(h,padre+(z.slot===0?-alto/4:alto/4));
+  });
+ });
  const totalAlto=Math.max(260,...posiciones.values())+alto+65;
  const totalAncho=rondas.length*(ancho+separacion)+25;
  let svg=`<svg class="llave-lineas" width="${totalAncho}" height="${totalAlto}" viewBox="0 0 ${totalAncho} ${totalAlto}" aria-hidden="true">`;
