@@ -766,4 +766,15 @@ function mostrarLlave19(){
   rondas.forEach((r,i)=>{const x=i*(ancho+separacion)+10;html+=`<div class="llave-titulo" style="left:${x}px;width:${ancho}px">${r.titulo}</div>`;r.partidos.forEach(p=>{const y=posiciones.get(Number(p.numeroCruce));const estado=String(p.estado||'PENDIENTE');const hora=horaVisible(p.hora);const fecha=diaCorto(p.dia);html+=`<div class="llave-partido ${i===rondas.length-1?'llave-partido-final':''}" style="left:${x}px;top:${y}px;width:${ancho}px;height:${alto}px"><span class="llave-estado ${estadoClase(estado)}">${estadoTexto(estado)}</span><div class="llave-cuerpo"><div class="llave-ref">${limpio(referencia(p,0))||'&nbsp;'}</div><div class="llave-nombre ${ocultar(p.pareja1)?'':'sin-nombre'}">${nombre(ocultar(p.pareja1))||'&nbsp;'}</div><div class="llave-fecha"><span>${limpio(fecha)}</span>${limpio(hora)}</div><div class="llave-ref segunda">${limpio(referencia(p,1))||'&nbsp;'}</div><div class="llave-nombre segunda ${ocultar(p.pareja2)?'':'sin-nombre'}">${nombre(ocultar(p.pareja2))||'&nbsp;'}</div></div></div>`;});});
  html+='</div></div></div>';document.getElementById('contenido').innerHTML=html;
 }
-</script></body></html>
+</script>
+<!-- Contador de visitas NeroAzzurro: registro silencioso de una visita por carga de página. -->
+<script>
+(function () {
+  const endpoint = 'https://script.google.com/macros/s/AKfycbzE2IUqejgGJ9jqU-dAEq92lTNF3bqFATQ7HxBwOtWC7Ckla5owj7fT3M6FUocYpBuKiQ/exec';
+  // No se lee ningún dato de la respuesta; se evita requerir permisos CORS.
+  window.addEventListener('load', function () {
+    fetch(endpoint, {mode: 'no-cors', method: 'GET', cache: 'no-store', keepalive: true}).catch(function () {});
+  }, {once: true});
+})();
+</script>
+</body></html>
