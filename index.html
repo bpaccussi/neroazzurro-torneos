@@ -1157,10 +1157,10 @@ function simCalcular(){
 #master-prueba .mf-aviso{border-left:3px solid #1689ff;padding:9px 12px;background:#0d1829;margin:12px 0;color:#c8dbec;font-size:13px}
 @media(max-width:650px){#master-prueba .mf-zonas{grid-template-columns:1fr}}
 </style>
-<div id="master-prueba-entrada" style="max-width:1200px;margin:16px auto;padding:0 18px"><button class="refresh" type="button" onclick="abrirMasterPrueba()">MASTER FINAL 2026 · ABRIR PRUEBA</button></div><section id="master-prueba" hidden><main class="content-wrap">
+<div id="master-prueba-entrada" style="max-width:1200px;margin:16px auto;padding:0 18px"><button class="refresh" type="button" onclick="abrirMasterPrueba()">MASTER FINAL 2026 · VER TORNEO</button></div><section id="master-prueba" hidden><main class="content-wrap">
 <button class="back" onclick="cerrarMasterPrueba()">← Volver al inicio</button>
-<div class="section-head"><h2>MASTER FINAL 2026 · PRUEBA 7MA CABALLEROS</h2><p>Zonas, partidos y llaves · Vista de prueba</p></div>
-<div class="mf-aviso">PRUEBA GOOGLE SHEETS · Resultados leídos exclusivamente de la planilla. No modifica la web publicada.</div>
+<div class="section-head"><h2>MASTER FINAL 2026</h2><p>Zonas, partidos y llaves</p></div>
+<div class="mf-aviso" style="display:none" aria-hidden="true"></div>
 <button id="mf-salir-fijo" type="button" onclick="window.mfModo(false)" aria-label="Cerrar sesión de administrador">Cerrar sesión</button>
 <div id="mf-admin-toolbar"><span>🔒 Administración · Sesión iniciada</span><button type="button" onclick="window.mfModo(false)">Cerrar sesión</button></div>
 <div class="mf-actions" style="display:none"><button id="mf-inscripciones-btn" type="button" hidden onclick="window.mfAbrirInscripciones()">Inscripciones y firmas</button><button id="mf-publico" onclick="mfModo(false)">Vista público</button><button id="mf-admin" onclick="mfModo(true)">Iniciar sesión administrador</button><button onclick="mfReiniciar()">Reiniciar esta prueba</button></div>
@@ -1941,7 +1941,7 @@ body > #mf-salir-fijo { position:fixed!important;top:12px!important;right:12px!i
 #mf-sheet-test{position:fixed;inset:0;z-index:2147483001;background:#050a12f5;color:#fff;overflow:auto;padding:25px 15px;font-family:Arial,sans-serif}
 #mf-sheet-test[hidden]{display:none!important}#mf-sheet-test .mf-test-inner{max-width:1000px;margin:auto}#mf-sheet-test button{background:#167fe2;color:white;border:0;border-radius:8px;padding:12px 15px;margin:5px;font-weight:bold}#mf-sheet-test select{max-width:300px;margin:6px;background:#0d1829;color:white}#mf-sheet-test .mf-test-card{background:#0d1829;border:1px solid #29425e;padding:15px;margin:12px 0;border-radius:10px}#mf-sheet-test .mf-test-match{border-top:1px solid #29425e;padding:10px 0}#mf-sheet-test .mf-test-muted{color:#aebed1}#mf-sheet-test .mf-test-result{color:#92edc4;font-weight:800}
 </style>
-<button id="mf-sheet-test-open" type="button" onclick="mfSheetTestOpen()">PRUEBA · Google Sheets</button>
+
 <section id="mf-sheet-test" hidden aria-label="Verificación Master Final Google Sheets"><div class="mf-test-inner"><button onclick="document.getElementById('mf-sheet-test').hidden=true">✕ Cerrar prueba</button><h2>MASTER FINAL 2026 · Verificación de Google Sheets</h2><p class="mf-test-muted">Pantalla de diagnóstico independiente. No cambia ni guarda datos del torneo.</p><button onclick="mfSheetTestLoad()">Actualizar desde Sheets</button><select id="mf-sheet-cat" onchange="mfSheetTestRender()"></select><p id="mf-sheet-status" aria-live="polite">Esperando conexión…</p><div id="mf-sheet-body"></div></div></section>
 <script id="mf-sheet-test-code">
 (function(){
