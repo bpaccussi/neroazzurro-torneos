@@ -1397,7 +1397,7 @@ function mfSheetSets(resultado){
 }
 window.mfActualizarDesdeSheets=async function(){
  if(mfSheetActualizando)return;mfSheetActualizando=true;
- window.mfSheetReady=false;window.mfRender();
+ if(!window.mfSheetReady)window.mfRender();
  mfSheetEstado('Actualizando datos...');
  try{
   const res=await fetch(mfSheetEndpoint+'?_master='+Date.now(),{cache:'no-store'});
@@ -2008,8 +2008,8 @@ window.neroLlaveOriginalMaster=function(cat){
   connect(xs[1]+widths[1],150+42,xs[2],365+21);
   connect(xs[1]+widths[1],580+42,xs[2],365+63);
  }else{
-  for(let j=0;j<4;j++)connect(xs[0]+widths[0],rounds[0][j].y+42,xs[1],rounds[1][Math.floor(j/2)].y+(j%2?63:21));
-  for(let j=0;j<2;j++)connect(xs[1]+widths[1],rounds[1][j].y+42,xs[2],rounds[2][0].y+(j?63:21));
+  for(let j=0;j<4;j++)connect(xs[0]+widths[0],rounds[0][j].y+34,xs[1],rounds[1][Math.floor(j/2)].y+(j%2?51:17));
+  for(let j=0;j<2;j++)connect(xs[1]+widths[1],rounds[1][j].y+34,xs[2],rounds[2][0].y+(j?51:17));
  }
  let html=`<div class="nm-original-wrap llave-escenario"><div class="nm-hint">Deslizá hacia los costados para seguir la llave →</div><div class="nm-scroll"><div class="nm-diagram" style="width:${W}px;height:${height}px"><svg class="nm-lines" width="${W}" height="${height}">${lines}</svg>`;
  const game=(x,y,refs)=>`<div class="nm-game" style="left:${x}px;top:${y}px;width:410px"><span class="nm-status">Pendiente</span><div class="nm-ref first">${E(refs[0])}</div><div class="nm-team"></div><div class="nm-ref second">${E(refs[1])}</div><div class="nm-team bottom"></div><div class="nm-meta"></div></div>`;
@@ -2050,9 +2050,10 @@ function mfRenderPartidosTarjetas(filas){
   datos.push({orden,categoria:get('categoria'),instancia:get('instancia'),dia:get('dia')||diaGrupo,hora:get('hora'),zona:get('zona'),partido:get('partido'),estado:get('estado')||'Pendiente',jugadores:js.slice(0,4)});
  }
  if(!datos.length)return '<div class="mf-agenda-empty">No se encontraron partidos con las columnas esperadas en M-Partidos.</div>';
+ const firmaPunto=(cat,nombre)=>{const clave=window.mfFirmasClave?.(cat,nombre);const estado=clave&&window.mfFirmasPorJugador?.get(clave);return estado==='SI'?'<i class="mf-firma-punto mf-firma-si" title="Firmó"></i>':estado==='NO'?'<i class="mf-firma-punto mf-firma-no" title="No firmó"></i>':'';};
  const estadoClase=e=>{const n=norm(e);return n==='jugado'?'jugado':n==='en juego'?'enjuego':n==='suspendido'?'suspendido':'pendiente'};
  const dias=[];for(const p of datos){const key=norm(p.dia);let g=dias.find(g=>g.key===key);if(!g){g={key,nombre:p.dia,partidos:[]};dias.push(g);}g.partidos.push(p);}
- return '<div class="mf-agenda-tarjetas"><p class="mf-agenda-cuenta">'+datos.length+' partidos de zona</p>'+dias.map(g=>'<section class="mf-agenda-dia"><h3>'+esc(g.nombre)+'</h3>'+g.partidos.map(p=>'<article class="mf-agenda-card"><div class="meta-line"><div class="meta-main">P'+esc(p.orden)+' · '+esc(String(p.categoria).replace(/CABALLEROS/gi,'CAB').replace(/DAMAS/gi,'DAM'))+' · Zona '+esc(p.zona)+' · '+esc(p.partido)+' · '+esc(p.hora)+' hs'+'</div><span class="mf-agenda-estado '+estadoClase(p.estado)+'">'+esc(p.estado)+'</span></div><div class="versus"><div class="team-first"><span>'+esc(p.jugadores[0])+'</span><span>'+esc(p.jugadores[1])+'</span></div><b class="vs">vs</b><div class="team-second"><span>'+esc(p.jugadores[2])+'</span><span>'+esc(p.jugadores[3])+'</span></div></div></article>').join('')+'</section>').join('')+'</div>';
+ return '<div class="mf-agenda-tarjetas"><p class="mf-agenda-cuenta">'+datos.length+' partidos de zona</p>'+dias.map(g=>'<section class="mf-agenda-dia"><h3>'+esc(g.nombre)+'</h3>'+g.partidos.map(p=>'<article class="mf-agenda-card"><div class="meta-line"><div class="meta-main">P'+esc(p.orden)+' · '+esc(String(p.categoria).replace(/CABALLEROS/gi,'CAB').replace(/DAMAS/gi,'DAM'))+' · Zona '+esc(p.zona)+' · '+esc(p.partido)+' · '+esc(p.hora)+' hs'+'</div><span class="mf-agenda-estado '+estadoClase(p.estado)+'">'+esc(p.estado)+'</span></div><div class="versus"><div class="team-first"><span>'+firmaPunto(p.categoria,p.jugadores[0])+esc(p.jugadores[0])+'</span><span>'+firmaPunto(p.categoria,p.jugadores[1])+esc(p.jugadores[1])+'</span></div><b class="vs">vs</b><div class="team-second"><span>'+firmaPunto(p.categoria,p.jugadores[2])+esc(p.jugadores[2])+'</span><span>'+firmaPunto(p.categoria,p.jugadores[3])+esc(p.jugadores[3])+'</span></div></div></article>').join('')+'</section>').join('')+'</div>';
 }
 </script>
 <style id="mf-tarjetas-reales-css">
@@ -2086,3 +2087,161 @@ function mfRenderPartidosTarjetas(filas){
 </style></body></html>
 
 <style id="mf-v20-portada-visibility">#home-nuevo .home-layout .mf-portada-acceso{display:block!important;position:relative;z-index:4;margin:18px auto 24px;max-width:760px}#home-nuevo .home-layout .mf-portada-boton{display:block!important;width:100%}#master-2026[hidden]{display:none!important}</style>
+
+<style id="mf-llaves-sheet-prueba-css">
+#master-prueba .nm-game{grid-template-columns:60px minmax(0,1fr) 112px}
+#master-prueba .nm-team{font-size:11px;white-space:normal;line-height:1.2;overflow:hidden;padding:3px 8px}
+#master-prueba .nm-meta{font-size:10px;text-align:center;gap:4px;padding:2px}
+#master-prueba .nm-status{font-size:10px}
+#master-prueba .nm-game .nm-meta{white-space:normal;text-align:center;min-width:0;padding:4px 3px;gap:2px}
+#master-prueba .nm-game .nm-meta .mf-day{display:block;font-size:10px;line-height:1.3;white-space:nowrap}
+#master-prueba .nm-game .nm-meta .mf-hour{display:block;font-size:11px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap}
+#master-prueba .nm-llaves-alert{padding:12px 16px;border:1px solid #3c739b;background:#102c49;border-radius:9px;margin:8px 0 16px;color:#d6ecff;font-size:13px}
+
+/* Ajuste visual solicitado: misma conexión en vivo, solo presentación */
+#master-prueba .nm-game{grid-template-columns:60px minmax(0,1fr) 80px!important}
+#master-prueba .nm-team{justify-content:center!important;text-align:center!important;padding:3px 5px!important;font-weight:800!important;font-size:11px!important;line-height:1.18!important}
+#master-prueba .nm-meta{width:auto!important;min-width:0!important;padding:2px 1px!important;gap:2px!important;text-align:center!important;white-space:normal!important}
+#master-prueba .nm-game .nm-meta .mf-day{display:block!important;font-size:10px!important;font-weight:400!important;line-height:1.3!important;color:#b9d0e4!important}
+#master-prueba .nm-game .nm-meta .mf-hour{display:block!important;font-size:11px!important;font-weight:800!important;line-height:1.3!important;color:#fff!important}
+
+/* Celdas mas bajas; nombres largos se ajustan sin ampliar el ancho */
+#master-prueba .nm-game{grid-template-rows:34px 34px!important}
+#master-prueba .nm-team{min-width:0!important;min-height:0!important;box-sizing:border-box!important;padding:2px 5px!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;overflow:hidden!important;line-height:1.12!important;font-size:10.5px!important;text-align:center!important;justify-content:center!important}
+#master-prueba .nm-ref{min-height:0!important;font-size:10px!important}
+#master-prueba .nm-meta{min-height:0!important;line-height:1.1!important;gap:1px!important;padding:1px!important}
+#master-prueba .nm-status{font-size:9px!important;padding:3px 9px!important}
+</style><script id="mf-llaves-sheet-prueba-script">
+(function(){
+'use strict';
+// Archivo de PRUEBA: no publica cambios ni escribe en Google Sheets.
+const SHEET_URL='https://docs.google.com/spreadsheets/d/1FeQa7bxxGi6y4VekkUenCbqjA5hZr03_ZcslGvIsqjI/gviz/tq?tqx=out:csv&gid=765314038';
+const BACKUP_ROWS=[["Categoría","Ronda","Nº cruce","Enfrentamiento","Jugador 1 · Pareja 1","—","Jugador 2 · Pareja 1","Jugador 1 · Pareja 2","—","Jugador 2 · Pareja 2","Día","Hora","Estado"],["5ta Damas","Cuartos","CF1","3º A vs. 2º B","","-","","","-","","Sábado","0.75","Pendiente"],["5ta Damas","Cuartos","CF2","2º A vs. 3º B","","-","","","-","","Sábado","0.7916666666666666","Pendiente"],["5ta Damas","Semifinal","SF1","1º A vs. Ganador CF1","","-","","","-","","Domingo","0.5416666666666666","Pendiente"],["5ta Damas","Semifinal","SF2","Ganador CF2 vs. 1º B","","-","","","-","","Domingo","0.6041666666666666","Pendiente"],["5ta Damas","Final","Final","Ganador SF1 vs. Ganador SF2","","-","","","-","","Domingo","0.7916666666666666","Pendiente"],["6ta Damas","Cuartos","CF1","1º A vs. 3º B","","-","","","-","","Sábado","0.6666666666666666","Pendiente"],["6ta Damas","Cuartos","CF2","2º B vs. 2º C","","-","","","-","","Sábado","0.6666666666666666","Pendiente"],["6ta Damas","Cuartos","CF3","1º C vs. 2º A","","-","","","-","","Sábado","0.6666666666666666","Pendiente"],["6ta Damas","Cuartos","CF4","3º A vs. 1º B","","-","","","-","","Sábado","0.7083333333333334","Pendiente"],["6ta Damas","Semifinal","SF1","Ganador CF1 vs. Ganador CF2","","-","","","-","","Domingo","0.4166666666666667","Pendiente"],["6ta Damas","Semifinal","SF2","Ganador CF3 vs. Ganador CF4","","-","","","-","","Domingo","0.4791666666666667","Pendiente"],["6ta Damas","Final","Final","Ganador SF1 vs. Ganador SF2","","-","","","-","","Domingo","0.7291666666666666","Pendiente"],["7ma Damas","Cuartos","CF1","1º A vs. 2º B","","-","","","-","","Sábado","0.7083333333333334","Pendiente"],["7ma Damas","Cuartos","CF2","2º C vs. 1º D","","-","","","-","","Sábado","0.7083333333333334","Pendiente"],["7ma Damas","Cuartos","CF3","1º C vs. 2º D","","-","","","-","","Sábado","0.75","Pendiente"],["7ma Damas","Cuartos","CF4","2º A vs. 1º B","","-","","","-","","Sábado","0.75","Pendiente"],["7ma Damas","Semifinal","SF1","Ganador CF1 vs. Ganador CF2","","-","","","-","","Domingo","0.4166666666666667","Pendiente"],["7ma Damas","Semifinal","SF2","Ganador CF3 vs. Ganador CF4","","-","","","-","","Domingo","0.4166666666666667","Pendiente"],["7ma Damas","Final","Final","Ganador SF1 vs. Ganador SF2","","-","","","-","","Domingo","0.6666666666666666","Pendiente"],["5ta Caballeros","Cuartos","CF1","2º B vs. 2º C","","-","","","-","","Sábado","0.7916666666666666","Pendiente"],["5ta Caballeros","Cuartos","CF2","1º C vs. 2º A","","-","","","-","","Sábado","0.7916666666666666","Pendiente"],["5ta Caballeros","Cuartos","CF3","3º A vs. 1º B","","-","","","-","","Sábado","0.8333333333333334","Pendiente"],["5ta Caballeros","Semifinal","SF1","1º A vs. Ganador CF1","","-","","","-","","Domingo","0.6041666666666666","Pendiente"],["5ta Caballeros","Semifinal","SF2","Ganador CF2 vs. Ganador CF3","","-","","","-","","Domingo","0.6041666666666666","Pendiente"],["5ta Caballeros","Final","Final","Ganador SF1 vs. Ganador SF2","","-","","","-","","Domingo","0.7916666666666666","Pendiente"],["6ta Caballeros","Cuartos","CF1","1º A vs. 2º B","","-","","","-","","Sábado","0.8333333333333334","Pendiente"],["6ta Caballeros","Cuartos","CF2","2º C vs. 1º D","","-","","","-","","Sábado","0.8333333333333334","Pendiente"],["6ta Caballeros","Cuartos","CF3","1º C vs. 2º D","","-","","","-","","Sábado","0.875","Pendiente"],["6ta Caballeros","Cuartos","CF4","2º A vs. 1º B","","-","","","-","","Sábado","0.875","Pendiente"],["6ta Caballeros","Semifinal","SF1","Ganador CF1 vs. Ganador CF2","","-","","","-","","Domingo","0.5416666666666666","Pendiente"],["6ta Caballeros","Semifinal","SF2","Ganador CF3 vs. Ganador CF4","","-","","","-","","Domingo","0.5416666666666666","Pendiente"],["6ta Caballeros","Final","Final","Ganador SF1 vs. Ganador SF2","","-","","","-","","Domingo","0.7291666666666666","Pendiente"],["7ma Caballeros","Cuartos","CF1","1º A vs. 2º B","","-","","","-","","Sábado","0.875","Pendiente"],["7ma Caballeros","Cuartos","CF2","2º C vs. 1º D","","-","","","-","","Sábado","0.9166666666666666","Pendiente"],["7ma Caballeros","Cuartos","CF3","1º C vs. 2º D","","-","","","-","","Sábado","0.9166666666666666","Pendiente"],["7ma Caballeros","Cuartos","CF4","2º A vs. 1º B","","-","","","-","","Sábado","0.9166666666666666","Pendiente"],["7ma Caballeros","Semifinal","SF1","Ganador CF1 vs. Ganador CF2","","-","","","-","","Domingo","0.4791666666666667","Pendiente"],["7ma Caballeros","Semifinal","SF2","Ganador CF3 vs. Ganador CF4","","-","","","-","","Domingo","0.4791666666666667","Pendiente"],["7ma Caballeros","Final","Final","Ganador SF1 vs. Ganador SF2","","-","","","-","","Domingo","0.6666666666666666","Pendiente"]];
+let rows=BACKUP_ROWS,source='copia del Excel (NO EN VIVO)',loading=false,error='';
+const clean=x=>String(x??'').trim();
+const esc=x=>clean(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=x=>clean(x).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+function parseCSV(s){let out=[],row=[],cur='',quoted=false;for(let i=0;i<s.length;i++){let c=s[i];if(c==='"'){if(quoted&&s[i+1]==='"'){cur+='"';i++}else quoted=!quoted;}else if(c===','&&!quoted){row.push(cur);cur='';}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&s[i+1]==='\n')i++;row.push(cur);if(row.some(v=>v.trim()))out.push(row);row=[];cur='';}else cur+=c;}row.push(cur);if(row.some(v=>v.trim()))out.push(row);return out;}
+function records(){return rows.slice(1).filter(r=>r[0]&&r[2]).map(r=>({cat:norm(r[0]),round:norm(r[1]),id:norm(r[2]),refs:r[3],a:[r[4],r[6]],b:[r[7],r[9]],day:r[10],hour:r[11],state:r[12]}));}
+function category(c){return records().filter(r=>r.cat===norm(c));}
+function get(cat,round,id){return category(cat).find(r=>r.round===norm(round)&&r.id===norm(id));}
+function pair(a){return a.map(clean).filter(x=>x&&x!=='-').join(' / ');}
+function fmtHour(v){let t=clean(v);if(!t)return '';if(/^\d{1,2}:\d{2}(?::\d{2})?$/.test(t))return t.slice(0,5).padStart(5,'0');let n=Number(t.replace(',','.'));if(Number.isFinite(n)&&n>=0&&n<1){let mins=Math.round(n*1440)%1440;return String(Math.floor(mins/60)).padStart(2,'0')+':'+String(mins%60).padStart(2,'0');}return t;}
+function game(row,refs,x,y){let names=row?[pair(row.a),pair(row.b)]:['',''];let state=row?.state||'Pendiente';let day=clean(row?.day);let hour=fmtHour(row?.hour);let dt='<span class="mf-day">'+esc(day)+'</span><span class="mf-hour">'+esc(hour?hour+' hs':'')+'</span>'; let badge=norm(state)==='JUGADO'?'#08794e':norm(state)==='EN JUEGO'?'#a9630c':'#164b7b';return `<div class="nm-game" style="left:${x}px;top:${y}px;width:410px"><span class="nm-status" style="background:${badge}">${esc(state)}</span><div class="nm-ref first">${esc(refs[0])}</div><div class="nm-team">${esc(names[0])||'Por definir'}</div><div class="nm-ref second">${esc(refs[1])}</div><div class="nm-team bottom">${esc(names[1])||'Por definir'}</div><div class="nm-meta">${dt}</div></div>`;}
+window.neroLlaveOriginalMaster=function(cat){
+ const es5=cat==='5ta DAMAS',es6D=cat==='6ta DAMAS',es5C=cat==='5ta CABALLEROS';
+ const W=1390,xs=[10,490,970],widths=[410,410,410];
+ const rounds=es5C?[
+ [{y:220,refs:['2º B','2º C']},{y:410,refs:['1º C','2º A']},{y:560,refs:['3º A','1º B']}],
+ [{y:150,refs:['1º A','']},{y:485,refs:['','']}],[{y:318,refs:['','']}]
+ ]:es5?[
+ [{y:220,refs:['3º A','2º B']},{y:500,refs:['2º A','3º B']}],
+ [{y:150,refs:['1º A','']},{y:580,refs:['','1º B']}],[{y:365,refs:['','']}]
+ ]:[
+ [{y:110,refs:es6D?['1º A','3º B']:['1º A','2º B']},{y:260,refs:es6D?['2º B','2º C']:['2º C','1º D']},{y:410,refs:es6D?['1º C','2º A']:['1º C','2º D']},{y:560,refs:es6D?['3º A','1º B']:['2º A','1º B']}],
+ [{y:185,refs:['','']},{y:485,refs:['','']}],[{y:335,refs:['','']}]
+ ];
+ const height=(es5||es5C)?815:800;let lines='';
+ const connect=(fromX,fromY,toX,toY)=>{const mid=(fromX+toX)/2;lines+=`<path d="M${fromX} ${fromY} H${mid} V${toY} H${toX}"/>`;};
+ if(es5C){connect(420,262,490,205);connect(420,452,490,498);connect(420,602,490,540);connect(900,192,970,331);connect(900,527,970,373);}
+ else if(es5){connect(420,262,490,205);connect(420,542,490,593);connect(900,192,970,378);connect(900,622,970,420);}
+ else{for(let j=0;j<4;j++)connect(420,rounds[0][j].y+34,490,rounds[1][Math.floor(j/2)].y+(j%2?51:17));for(let j=0;j<2;j++)connect(900,rounds[1][j].y+34,970,rounds[2][0].y+(j?51:17));}
+ let html=`<div class="nm-original-wrap llave-escenario"><div class="nm-llaves-alert">Llaves de prueba · Datos: ${esc(source)}${error?' · No se pudo consultar en vivo: '+esc(error):''}. Solo lectura; si indica copia del Excel, NO refleja cambios nuevos del Sheet. La web publicada no se modifica.</div><div class="nm-hint">Deslizá hacia los costados para seguir la llave →</div><div class="nm-scroll"><div class="nm-diagram" style="width:${W}px;height:${height}px"><svg class="nm-lines" width="${W}" height="${height}">${lines}</svg>`;
+ ['CUARTOS','SEMIFINAL','FINAL'].forEach((name,i)=>{html+=`<div class="nm-round-title" style="left:${xs[i]}px;width:${widths[i]}px">${name}</div>`;rounds[i].forEach((p,j)=>{let key=i===0?'CF'+(j+1):i===1?'SF'+(j+1):'Final';let label=i===0?'Cuartos':i===1?'Semifinal':'Final';html+=game(get(cat,label,key),p.refs,xs[i],p.y);});});
+ return html+'</div></div></div>';
+};
+function liveViaGviz(){return new Promise((resolve,reject)=>{
+ const cb='mfLlavesCb'+Date.now()+Math.floor(Math.random()*100000);
+ const script=document.createElement('script');let done=false;
+ const finish=(err,val)=>{if(done)return;done=true;clearTimeout(timer);delete window[cb];script.remove();err?reject(err):resolve(val);};
+ window[cb]=(response)=>{try{
+  if(response.status!=='ok'||!response.table)throw Error('Google Sheets no habilitó la consulta de M-Llaves');
+  const t=response.table;const raw=(t.rows||[]).map(r=>(r.c||[]).map(c=>c?(c.f??c.v??''):'').map(v=>String(v)));
+  // gviz puede tomar la primera fila como encabezados: normalizar ambos formatos
+  const head=(t.cols||[]).map(c=>c.label||'');
+  const full=norm(head[0]).includes('CATEGOR')?[head,...raw]:raw;
+  if(full.length<39)throw Error('La solapa M-Llaves no devolvió los 39 partidos');
+  if(!norm(full[0][0]).includes('CATEGOR'))full.unshift(['Categoría','Ronda','Nº cruce','Enfrentamiento','','','','','','','Día','Hora','Estado']);
+  finish(null,full);
+ }catch(e){finish(e)}};
+ const timer=setTimeout(()=>finish(Error('La consulta a Google Sheets agotó el tiempo de espera')),10000);
+ const base='https://docs.google.com/spreadsheets/d/1FeQa7bxxGi6y4VekkUenCbqjA5hZr03_ZcslGvIsqjI/gviz/tq';
+ script.src=base+'?gid=765314038&headers=1&tqx='+encodeURIComponent('out:json;responseHandler:'+cb)+'&_='+Date.now();
+ script.onerror=()=>finish(Error('M-Llaves no es accesible públicamente desde el navegador'));
+ document.head.appendChild(script);
+ });}
+async function refresh(){if(loading)return;loading=true;try{
+ let parsed=await liveViaGviz();
+ if(parsed.length<39)throw Error('Faltan partidos en M-Llaves');
+ rows=parsed;source='Google Sheets en vivo';error='';
+ }catch(e){error=e.message||'Acceso no disponible';source='copia del Excel (NO EN VIVO)';}
+ finally{loading=false;if(document.getElementById('mf-vista')?.value==='llaves'&&window.mfSheetReady&&window.mfRender)window.mfRender();}}
+
+const oldOpen=window.abrirMasterPrueba;
+if(typeof oldOpen==='function')window.abrirMasterPrueba=function(){oldOpen.apply(this,arguments);refresh();};
+const oldUpdate=window.mfActualizarDesdeSheets;
+if(typeof oldUpdate==='function')window.mfActualizarDesdeSheets=function(){const result=oldUpdate.apply(this,arguments);refresh();return result;};
+// Actualización automática: sin recargar la página ni borrar las llaves durante la consulta.
+setInterval(()=>{
+ if(document.hidden || document.getElementById('master-prueba')?.hidden)return;
+ // La consulta de M-Llaves es independiente y no espera a la de zonas/partidos.
+ refresh();
+ // Si la consulta general tarda más de 4 segundos, se omiten ciclos superpuestos.
+ if(typeof oldUpdate==='function')oldUpdate();
+},4000);
+// Refresco cada vez que se entra en Llaves desde la navegación existente.
+document.addEventListener('click',e=>{if(e.target.closest('[data-vista="llaves"]'))refresh();});
+})();
+</script>
+<style id="mf-firmas-publicas-css">
+#master-prueba .mf-firma-punto{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;vertical-align:middle;margin:0 5px 1px 0;box-shadow:0 0 0 1px rgba(255,255,255,.16)}
+#master-prueba .mf-firma-si{background:#21cf7c}
+#master-prueba .mf-firma-no{background:#f4a640}
+</style>
+<script id="mf-firmas-publicas-live">
+(function(){
+ 'use strict';
+ const GID='271538448';
+ const SHEET='1FeQa7bxxGi6y4VekkUenCbqjA5hZr03_ZcslGvIsqjI';
+ let loading=false, ready=false;
+ const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+ const category=s=>norm(s).replace(/\bCAB\b/,'CABALLEROS').replace(/\bDAM\b/,'DAMAS');
+ window.mfFirmasClave=(cat,nombre)=>category(cat)+'|'+norm(nombre);
+ window.mfFirmasPorJugador=new Map();
+ function gviz(){return new Promise((resolve,reject)=>{
+  const cb='mfFirmasCb'+Date.now()+Math.floor(Math.random()*100000);
+  const script=document.createElement('script');let ended=false;
+  const done=(err,value)=>{if(ended)return;ended=true;clearTimeout(timer);try{delete window[cb]}catch(_){}script.remove();err?reject(err):resolve(value)};
+  window[cb]=res=>{try{
+   if(res.status!=='ok'||!res.table)throw Error('No se pudo leer Pagos y Firmas');
+   const cols=(res.table.cols||[]).map(c=>String(c.label||''));
+   const rows=(res.table.rows||[]).map(r=>(r.c||[]).map(c=>String(c?.f??c?.v??'')));
+   done(null,{cols,rows});
+  }catch(e){done(e)}};
+  const timer=setTimeout(()=>done(Error('Tiempo de espera agotado')),12000);
+  const url='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?gid='+GID+'&headers=1&tqx='+encodeURIComponent('out:json;responseHandler:'+cb)+'&_='+Date.now();
+  script.src=url;script.onerror=()=>done(Error('No se pudo acceder a Pagos y Firmas'));document.head.appendChild(script);
+ });}
+ async function update(){
+  if(loading||document.hidden)return;loading=true;
+  try{
+   const result=await gviz();let rows=result.rows;
+   // La hoja tiene A=Categoria B=Jugador1 C=Firmo1 D=Jugador2 E=Firmo2.
+   const map=new Map();
+   for(const r of rows){if(r.length<5)continue;const cat=r[0];if(!cat||norm(cat)==='CATEGORIA')continue;
+    for(const [nameIndex,signIndex] of [[1,2],[3,4]]){
+     const nombre=r[nameIndex],firma=norm(r[signIndex]);if(!nombre)continue;
+     if(firma==='SI'||firma==='NO')map.set(window.mfFirmasClave(cat,nombre),firma);
+    }
+   }
+   window.mfFirmasPorJugador=map;ready=true;
+   if(document.getElementById('mf-vista')?.value==='partidos'&&window.mfRender)window.mfRender();
+  }catch(e){console.warn('Firmas: no se pudo actualizar; se conserva la última lectura válida',e)}
+  finally{loading=false;}
+ }
+ // Actualización independiente cada 4 segundos; no interfiere con zonas ni llaves.
+ setInterval(()=>{if(!document.getElementById('master-prueba')?.hidden)update()},4000);
+ document.addEventListener('click',e=>{if(e.target.closest('[data-vista="partidos"]'))update()});
+ update();
+})();
+</script>
