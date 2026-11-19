@@ -2052,8 +2052,22 @@ function mfRenderPartidosTarjetas(filas){
  if(!datos.length)return '<div class="mf-agenda-empty">No se encontraron partidos con las columnas esperadas en M-Partidos.</div>';
  const firmaPunto=(cat,nombre)=>{const clave=window.mfFirmasClave?.(cat,nombre);const estado=clave&&window.mfFirmasPorJugador?.get(clave);return estado==='SI'?'<i class="mf-firma-punto mf-firma-si" title="Firmó"></i>':estado==='NO'?'<i class="mf-firma-punto mf-firma-no" title="No firmó"></i>':'';};
  const estadoClase=e=>{const n=norm(e);return n==='jugado'?'jugado':n==='en juego'?'enjuego':n==='suspendido'?'suspendido':'pendiente'};
- const dias=[];for(const p of datos){const key=norm(p.dia);let g=dias.find(g=>g.key===key);if(!g){g={key,nombre:p.dia,partidos:[]};dias.push(g);}g.partidos.push(p);}
- return '<div class="mf-agenda-tarjetas"><p class="mf-agenda-cuenta">'+datos.length+' partidos de zona</p>'+dias.map(g=>'<section class="mf-agenda-dia"><h3>'+esc(g.nombre)+'</h3>'+g.partidos.map(p=>'<article class="mf-agenda-card"><div class="meta-line"><div class="meta-main">P'+esc(p.orden)+' · '+esc(String(p.categoria).replace(/CABALLEROS/gi,'CAB').replace(/DAMAS/gi,'DAM'))+' · Zona '+esc(p.zona)+' · '+esc(p.partido)+' · '+esc(p.hora)+' hs'+'</div><span class="mf-agenda-estado '+estadoClase(p.estado)+'">'+esc(p.estado)+'</span></div><div class="versus"><div class="team-first"><span>'+firmaPunto(p.categoria,p.jugadores[0])+esc(p.jugadores[0])+'</span><span>'+firmaPunto(p.categoria,p.jugadores[1])+esc(p.jugadores[1])+'</span></div><b class="vs">vs</b><div class="team-second"><span>'+firmaPunto(p.categoria,p.jugadores[2])+esc(p.jugadores[2])+'</span><span>'+firmaPunto(p.categoria,p.jugadores[3])+esc(p.jugadores[3])+'</span></div></div></article>').join('')+'</section>').join('')+'</div>';
+ const valorFiltro=id=>document.getElementById(id)?.value||'';
+ const diaFiltro=norm(valorFiltro('mf-dia-filtro'));
+ const zonaFiltro=norm(valorFiltro('mf-zona-filtro'));
+ const faseFiltro=norm(valorFiltro('mf-fase-filtro'));
+ const categoriaFiltro=norm(valorFiltro('mf-cat'));
+ const buscarFiltro=norm(valorFiltro('mf-buscar'));
+ const filtrados=datos.filter(p=>{
+  if(diaFiltro&&norm(p.dia)!==diaFiltro)return false;
+  if(zonaFiltro&&norm(p.zona)!==zonaFiltro)return false;
+  if(faseFiltro){const instancia=norm(p.instancia);if(!instancia.includes(faseFiltro))return false;}
+  if(categoriaFiltro&&categoriaFiltro!=='todas las categorias'&&norm(p.categoria)!==categoriaFiltro)return false;
+  if(buscarFiltro&&!norm([...p.jugadores,p.categoria,p.zona,p.partido].join(' ')).includes(buscarFiltro))return false;
+  return true;
+ });
+ const dias=[];for(const p of filtrados){const key=norm(p.dia);let g=dias.find(g=>g.key===key);if(!g){g={key,nombre:p.dia,partidos:[]};dias.push(g);}g.partidos.push(p);}
+ return '<div class="mf-agenda-tarjetas"><p class="mf-agenda-cuenta">'+filtrados.length+' de '+datos.length+' partidos de zona</p>'+dias.map(g=>'<section class="mf-agenda-dia"><h3>'+esc(g.nombre)+'</h3>'+g.partidos.map(p=>'<article class="mf-agenda-card"><div class="meta-line"><div class="meta-main">P'+esc(p.orden)+' · '+esc(String(p.categoria).replace(/CABALLEROS/gi,'CAB').replace(/DAMAS/gi,'DAM'))+' · Zona '+esc(p.zona)+' · '+esc(p.partido)+' · '+esc(p.hora)+' hs'+'</div><span class="mf-agenda-estado '+estadoClase(p.estado)+'">'+esc(p.estado)+'</span></div><div class="versus"><div class="team-first"><span>'+firmaPunto(p.categoria,p.jugadores[0])+esc(p.jugadores[0])+'</span><span>'+firmaPunto(p.categoria,p.jugadores[1])+esc(p.jugadores[1])+'</span></div><b class="vs">vs</b><div class="team-second"><span>'+firmaPunto(p.categoria,p.jugadores[2])+esc(p.jugadores[2])+'</span><span>'+firmaPunto(p.categoria,p.jugadores[3])+esc(p.jugadores[3])+'</span></div></div></article>').join('')+'</section>').join('')+(filtrados.length?'':'<div class="empty">No hay partidos que coincidan con los filtros.</div>')+'</div>';
 }
 </script>
 <style id="mf-tarjetas-reales-css">
