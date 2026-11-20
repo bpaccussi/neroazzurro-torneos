@@ -1565,7 +1565,14 @@ window.cerrarMasterPrueba=()=>{document.getElementById('master-prueba').hidden=t
 // En Zonas: serpentina compacta, ranking adaptado a celular y luego zonas originales.
 const mfRenderAnterior=window.mfRender;
 window.mfRender=function(){
- mfRenderAnterior();
+ const vistaSolicitada=document.getElementById('mf-vista')?.value;
+ // En Llaves, el render antiguo no debe impedir dibujar la llave conectada.
+ // Para Zonas y Partidos se conserva exactamente el comportamiento existente.
+ if(vistaSolicitada==='llaves'){
+   try{mfRenderAnterior();}catch(err){console.warn('Render anterior de llaves omitido:',err);}
+ }else{
+   mfRenderAnterior();
+ }
  if(!window.mfSheetReady)return;
  const vista=document.getElementById('mf-vista').value;
  const catSeleccionada=document.getElementById('mf-cat').value;
@@ -2188,7 +2195,7 @@ async function refresh(){if(loading)return;loading=true;try{
  let parsed=await liveViaGviz();
  if(parsed.length<39)throw Error('Faltan partidos en M-Llaves');
  rows=parsed;source='Google Sheets en vivo';error='';
- }catch(e){error=e.message||'Acceso no disponible';source='copia del Excel (NO EN VIVO)';}
+ }catch(e){error=e.message||'Acceso no disponible';source='copia del Excel (NO EN VIVO)';console.warn('Llaves: se conserva la última lectura disponible:',error);}
  finally{loading=false;if(document.getElementById('mf-vista')?.value==='llaves'&&window.mfSheetReady&&window.mfRender)window.mfRender();}}
 
 const oldOpen=window.abrirMasterPrueba;
