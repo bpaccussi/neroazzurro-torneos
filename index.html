@@ -2160,7 +2160,7 @@ window.neroLlaveOriginalMaster=function(cat){
  if(es5C){connect(420,262,490,205);connect(420,452,490,498);connect(420,602,490,540);connect(900,192,970,331);connect(900,527,970,373);}
  else if(es5){connect(420,262,490,205);connect(420,542,490,593);connect(900,192,970,378);connect(900,622,970,420);}
  else{for(let j=0;j<4;j++)connect(420,rounds[0][j].y+34,490,rounds[1][Math.floor(j/2)].y+(j%2?51:17));for(let j=0;j<2;j++)connect(900,rounds[1][j].y+34,970,rounds[2][0].y+(j?51:17));}
- let html=`<div class="nm-original-wrap llave-escenario"><div class="nm-llaves-alert">Llaves de prueba · Datos: ${esc(source)}${error?' · No se pudo consultar en vivo: '+esc(error):''}. Solo lectura; si indica copia del Excel, NO refleja cambios nuevos del Sheet. La web publicada no se modifica.</div><div class="nm-hint">Deslizá hacia los costados para seguir la llave →</div><div class="nm-scroll"><div class="nm-diagram" style="width:${W}px;height:${height}px"><svg class="nm-lines" width="${W}" height="${height}">${lines}</svg>`;
+ let html=`<div class="nm-original-wrap llave-escenario"><div class="nm-hint">Deslizá hacia los costados para seguir la llave →</div><div class="nm-scroll"><div class="nm-diagram" style="width:${W}px;height:${height}px"><svg class="nm-lines" width="${W}" height="${height}">${lines}</svg>`;
  ['CUARTOS','SEMIFINAL','FINAL'].forEach((name,i)=>{html+=`<div class="nm-round-title" style="left:${xs[i]}px;width:${widths[i]}px">${name}</div>`;rounds[i].forEach((p,j)=>{let key=i===0?'CF'+(j+1):i===1?'SF'+(j+1):'Final';let label=i===0?'Cuartos':i===1?'Semifinal':'Final';html+=game(get(cat,label,key),p.refs,xs[i],p.y);});});
  return html+'</div></div></div>';
 };
