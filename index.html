@@ -2209,7 +2209,7 @@ setInterval(()=>{
  refresh();
  // Si la consulta general tarda más de 4 segundos, se omiten ciclos superpuestos.
  if(typeof oldUpdate==='function')oldUpdate();
-},4000);
+},60000);
 // Refresco cada vez que se entra en Llaves desde la navegación existente.
 document.addEventListener('click',e=>{if(e.target.closest('[data-vista="llaves"]'))refresh();});
 })();
@@ -2261,7 +2261,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-vista="llaves"]
   finally{loading=false;}
  }
  // Actualización independiente cada 4 segundos; no interfiere con zonas ni llaves.
- setInterval(()=>{if(!document.getElementById('master-prueba')?.hidden)update()},4000);
+ setInterval(()=>{if(!document.getElementById('master-prueba')?.hidden)update()},60000);
  document.addEventListener('click',e=>{if(e.target.closest('[data-vista="partidos"]'))update()});
  update();
 })();
